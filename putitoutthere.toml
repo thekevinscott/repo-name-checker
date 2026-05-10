@@ -1,0 +1,17 @@
+[putitoutthere]
+version = 1
+
+[[package]]
+name = "repo-name-checker"
+kind = "pypi"
+pypi = "repo-name-checker"
+path = "."
+build = "hatch"
+first_version = "0.1.0"
+tag_format = "v{version}"
+globs = [
+  "src/**",
+  "pyproject.toml",
+  "uv.lock",
+  "README.md",
+]
