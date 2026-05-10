@@ -57,10 +57,39 @@ def describe_cli():
             main(["foo", "--format", "json"])
         payload = json.loads(capsys.readouterr().out)
         assert payload == [
-            {"registry": "npm", "name": "foo", "available": False},
-            {"registry": "pypi", "name": "foo", "available": True},
+            {"registry": "npm", "name": "foo", "available": False, "collisions": []},
+            {"registry": "pypi", "name": "foo", "available": True, "collisions": []},
         ]
 
     def it_rejects_unknown_format(capsys):
         with pytest.raises(SystemExit):
             main(["foo", "--format", "yaml"])
+
+    def it_includes_collisions_in_table_output(capsys):
+        results = [
+            CheckResult(
+                registry="npm",
+                name="darkfactory",
+                available=False,
+                collisions=("dark-factory", "dark_factory"),
+            ),
+        ]
+        with patch("repo_name_checker.cli.check_sync", return_value=results):
+            main(["darkfactory"])
+        out = capsys.readouterr().out
+        assert "dark-factory" in out
+        assert "dark_factory" in out
+
+    def it_includes_collisions_in_json_output(capsys):
+        results = [
+            CheckResult(
+                registry="npm",
+                name="darkfactory",
+                available=False,
+                collisions=("dark-factory",),
+            ),
+        ]
+        with patch("repo_name_checker.cli.check_sync", return_value=results):
+            main(["darkfactory", "--format", "json"])
+        payload = json.loads(capsys.readouterr().out)
+        assert payload[0]["collisions"] == ["dark-factory"]

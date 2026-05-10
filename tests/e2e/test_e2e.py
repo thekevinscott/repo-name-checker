@@ -11,7 +11,7 @@ pytestmark = pytest.mark.e2e
 
 
 # A name that's astronomically unlikely to ever be claimed on any of these registries.
-UNCLAIMED = "rnc-zzz-this-name-should-never-exist-9f3e2a"
+UNCLAIMED = "rnczzznevercannotexist9f3e2a"
 
 
 def describe_e2e_real_registries():

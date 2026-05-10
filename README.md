@@ -11,17 +11,26 @@ uvx repo-name-checker foobarbaz
 
 Produces a table:
 
-| Repository | Available |
-| ---------- | :-------: |
-| npm        |     ❌    |
-| pypi       |     ✅    |
-| crates     |     ✅    |
+| Repository | Available | Collisions    |
+| ---------- | :-------: | ------------- |
+| npm        |     ❌    | dark-factory  |
+| pypi       |     ✅    |               |
+| crates     |     ✅    |               |
 
 Pass a list of registries to narrow the check:
 
 ```
 uvx repo-name-checker foobarbaz --registry npm --registry pypi
 ```
+
+### Publish-time collision detection (npm)
+
+npm rejects publishes whose normalized form (lowercased, with `-`/`_`/`.`
+removed) matches an existing package. The `Collisions` column lists
+existing names that would block your publish — for example `darkfactory`
+collides with `dark-factory`. The check is best-effort: npm's exact
+internal algorithm is private, so a passing check is necessary but not
+sufficient.
 
 ### Output format
 
@@ -31,9 +40,9 @@ machine-readable list:
 ```
 $ uvx repo-name-checker foobarbaz --format json
 [
-  {"registry": "npm", "name": "foobarbaz", "available": false},
-  {"registry": "pypi", "name": "foobarbaz", "available": true},
-  {"registry": "crates", "name": "foobarbaz", "available": true}
+  {"registry": "npm", "name": "foobarbaz", "available": false, "collisions": ["foo-bar-baz"]},
+  {"registry": "pypi", "name": "foobarbaz", "available": true, "collisions": []},
+  {"registry": "crates", "name": "foobarbaz", "available": true, "collisions": []}
 ]
 ```
 

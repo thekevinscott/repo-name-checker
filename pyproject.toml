@@ -29,6 +29,7 @@ dev = [
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "pytest-describe>=2.2",
+    "pytest-timeout>=2.4.0",
     "respx>=0.21",
 ]
 
@@ -39,4 +40,5 @@ python_files = ["*_test.py", "test_*.py"]
 markers = [
     "e2e: tests that hit real registries over the network",
 ]
-addopts = "-m 'not e2e'"
+addopts = "-m 'not e2e' --timeout=5"
+timeout_func_only = true
