@@ -35,17 +35,22 @@ async def check(
     """Check `name` across the given registries (or all of them)."""
     selected = _resolve(registries)
     owns_client = client is None
-    client = client or httpx.AsyncClient(timeout=10.0, follow_redirects=True)
+    client = client or httpx.AsyncClient(timeout=5.0, follow_redirects=True)
     try:
-        availabilities = await asyncio.gather(
-            *(registry.is_available(client, name) for registry in selected)
+        reports = await asyncio.gather(
+            *(registry.check(client, name) for registry in selected)
         )
     finally:
         if owns_client:
             await client.aclose()
     return [
-        CheckResult(registry=registry.name, name=name, available=available)
-        for registry, available in zip(selected, availabilities, strict=True)
+        CheckResult(
+            registry=registry.name,
+            name=name,
+            available=report.available,
+            collisions=report.collisions,
+        )
+        for registry, report in zip(selected, reports, strict=True)
     ]
 
 

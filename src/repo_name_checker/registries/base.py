@@ -5,6 +5,8 @@ from urllib.parse import quote
 
 import httpx
 
+from repo_name_checker.types import RegistryReport
+
 
 class RegistryError(RuntimeError):
     """Raised when a registry returns an unexpected response."""
@@ -13,7 +15,7 @@ class RegistryError(RuntimeError):
 class Registry(Protocol):
     name: str
 
-    async def is_available(self, client: httpx.AsyncClient, package_name: str) -> bool: ...
+    async def check(self, client: httpx.AsyncClient, package_name: str) -> RegistryReport: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -22,14 +24,16 @@ class HttpStatusRegistry:
     url_template: str
     headers: Mapping[str, str] = field(default_factory=dict)
 
-    async def is_available(self, client: httpx.AsyncClient, package_name: str) -> bool:
+    async def check(
+        self, client: httpx.AsyncClient, package_name: str
+    ) -> RegistryReport:
         url = self.url_template.format(name=quote(package_name, safe=""))
         response = await client.get(url, headers=dict(self.headers))
         match response.status_code:
             case 404:
-                return True
+                return RegistryReport(available=True)
             case 200:
-                return False
+                return RegistryReport(available=False)
             case code:
                 raise RegistryError(
                     f"{self.name}: unexpected status {code} for {package_name!r}"

@@ -28,18 +28,21 @@ def describe_http_status_registry():
         with respx.mock(assert_all_called=True) as mock:
             route = mock.get("https://example.test/api/foo").respond(status_code)
             async with httpx.AsyncClient() as client:
-                assert await registry.is_available(client, "foo") is expected
+                report = await registry.check(client, "foo")
+            assert report.available is expected
+            assert report.collisions == ()
             assert route.calls.last.request.headers["X-Test"] == "1"
 
     async def it_url_encodes_the_name(registry: HttpStatusRegistry) -> None:
         with respx.mock(assert_all_called=True) as mock:
             mock.get("https://example.test/api/%40scope%2Fpkg").respond(404)
             async with httpx.AsyncClient() as client:
-                assert await registry.is_available(client, "@scope/pkg") is True
+                report = await registry.check(client, "@scope/pkg")
+            assert report.available is True
 
     async def it_raises_on_unexpected_status(registry: HttpStatusRegistry) -> None:
         with respx.mock() as mock:
             mock.get("https://example.test/api/foo").respond(500)
             async with httpx.AsyncClient() as client:
                 with pytest.raises(RegistryError):
-                    await registry.is_available(client, "foo")
+                    await registry.check(client, "foo")

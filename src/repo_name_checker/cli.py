@@ -40,14 +40,18 @@ def _render_table(results: list[CheckResult], console: Console) -> None:
     table = Table(show_header=True, header_style="bold")
     table.add_column("Repository")
     table.add_column("Available", justify="center")
+    table.add_column("Collisions")
     for result in results:
         marker = "[green]✅[/green]" if result.available else "[red]❌[/red]"
-        table.add_row(result.registry, marker)
+        collisions = ", ".join(result.collisions) if result.collisions else ""
+        table.add_row(result.registry, marker, collisions)
     console.print(table)
 
 
 def _render_json(results: list[CheckResult], console: Console) -> None:
     payload = [dataclasses.asdict(r) for r in results]
+    for entry in payload:
+        entry["collisions"] = list(entry["collisions"])
     console.print_json(json.dumps(payload))
 
 
