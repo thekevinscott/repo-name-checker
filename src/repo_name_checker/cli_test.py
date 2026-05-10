@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 import pytest
@@ -37,3 +38,29 @@ def describe_cli():
         with patch("repo_name_checker.cli.check_sync", return_value=all_taken):
             exit_code = main(["foo"])
         assert exit_code == 1
+
+    @pytest.mark.parametrize(
+        ("argv", "format_marker"),
+        [
+            (["foo"], "Available"),
+            (["foo", "--format", "table"], "Available"),
+        ],
+    )
+    def it_renders_a_table_by_default(fake_results, capsys, argv, format_marker):
+        with patch("repo_name_checker.cli.check_sync", return_value=fake_results):
+            main(argv)
+        out = capsys.readouterr().out
+        assert format_marker in out
+
+    def it_emits_json_when_requested(fake_results, capsys):
+        with patch("repo_name_checker.cli.check_sync", return_value=fake_results):
+            main(["foo", "--format", "json"])
+        payload = json.loads(capsys.readouterr().out)
+        assert payload == [
+            {"registry": "npm", "name": "foo", "available": False},
+            {"registry": "pypi", "name": "foo", "available": True},
+        ]
+
+    def it_rejects_unknown_format(capsys):
+        with pytest.raises(SystemExit):
+            main(["foo", "--format", "yaml"])
