@@ -1,0 +1,42 @@
+[project]
+name = "repo-name-checker"
+version = "0.1.0"
+description = "Check repo name availability across package registries"
+readme = "README.md"
+authors = [
+    { name = "Kevin Scott", email = "151596+thekevinscott@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28",
+    "rich>=13.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/thekevinscott/repo-name-checker"
+Repository = "https://github.com/thekevinscott/repo-name-checker"
+Issues = "https://github.com/thekevinscott/repo-name-checker/issues"
+
+[project.scripts]
+repo-name-checker = "repo_name_checker.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.11,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-describe>=2.2",
+    "respx>=0.21",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["src", "tests"]
+python_files = ["*_test.py", "test_*.py"]
+markers = [
+    "e2e: tests that hit real registries over the network",
+]
+addopts = "-m 'not e2e'"
