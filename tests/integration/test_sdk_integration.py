@@ -49,7 +49,7 @@ def describe_sdk_integration():
         results = check_sync("zzznotreal")
         assert all(r.available for r in results)
 
-    async def it_propagates_network_errors():
+    async def it_captures_network_errors_in_the_result():
         with respx.mock() as mock:
             mock.get("https://registry.npmjs.org/foo").mock(
                 side_effect=httpx.ConnectError("boom")
@@ -57,5 +57,8 @@ def describe_sdk_integration():
             mock.get(url__startswith=NPM_SEARCH).respond(
                 json={"objects": [], "total": 0, "time": "now"}
             )
-            with pytest.raises(httpx.ConnectError):
-                await check("foo", registries=["npm"])
+            results = await check("foo", registries=["npm"])
+        assert len(results) == 1
+        assert results[0].available is False
+        assert results[0].error is not None
+        assert "ConnectError" in results[0].error

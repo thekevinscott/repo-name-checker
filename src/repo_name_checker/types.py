@@ -7,6 +7,7 @@ class CheckResult:
     name: str
     available: bool
     collisions: tuple[str, ...] = ()
+    error: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
