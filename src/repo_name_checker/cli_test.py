@@ -153,3 +153,15 @@ def describe_cli():
             main(["foo", "--format", "json"])
         payload = json.loads(capsys.readouterr().out)
         assert payload[0]["error"] == "ConnectTimeout"
+
+    @pytest.mark.parametrize("flag", ["--version", "-V"])
+    def it_prints_version_and_exits_zero(capsys, flag):
+        with pytest.raises(SystemExit) as exc:
+            main([flag])
+        assert exc.value.code == 0
+        out = capsys.readouterr().out
+        assert out.startswith("repo-name-checker ")
+        # version should look like a PEP 440 version, not the unknown placeholder
+        version_str = out.split(" ", 1)[1].strip()
+        assert version_str
+        assert not version_str.startswith("0.0.0+unknown")
