@@ -2,6 +2,7 @@ import argparse
 import dataclasses
 import json
 from collections.abc import Sequence
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 
 from rich.console import Console
 from rich.table import Table
@@ -13,10 +14,23 @@ from repo_name_checker.types import CheckResult
 FORMATS = ("table", "json")
 
 
+def _resolve_version() -> str:
+    try:
+        return _pkg_version("repo-name-checker")
+    except PackageNotFoundError:
+        return "0.0.0+unknown"
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="repo-name-checker",
         description="Check whether a repo name is available across package registries.",
+    )
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {_resolve_version()}",
     )
     parser.add_argument("name", help="Name to check")
     parser.add_argument(
