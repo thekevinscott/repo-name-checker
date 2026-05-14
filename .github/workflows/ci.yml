@@ -1,6 +1,13 @@
 name: CI
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/pr-monitor.yml'
+      - 'putitoutthere.toml'
 permissions: { contents: read }
 jobs:
   test:
