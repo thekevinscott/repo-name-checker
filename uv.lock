@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-05-07T12:45:15.661069175Z"
+exclude-newer = "2026-05-11T00:02:31.807128304Z"
 exclude-newer-span = "P3D"
 
 [[package]]
@@ -195,7 +195,6 @@ wheels = [
 
 [[package]]
 name = "repo-name-checker"
-version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
