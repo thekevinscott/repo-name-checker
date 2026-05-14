@@ -1,6 +1,6 @@
 [project]
 name = "repo-name-checker"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Check repo name availability across package registries"
 readme = "README.md"
 authors = [
@@ -21,8 +21,11 @@ Issues = "https://github.com/thekevinscott/repo-name-checker/issues"
 repo-name-checker = "repo_name_checker.cli:main"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/repo_name_checker"]
